@@ -9,4 +9,16 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewSample extends ViewRecord
 {
     protected static string $resource = SampleResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\EditAction::make(),
+        ];
+    }
+
+    public function getTitle(): string
+    {
+        return $this->record->unique_ref;
+    }
 }

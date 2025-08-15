@@ -8,6 +8,9 @@ class Sample extends Model
 {
     protected $fillable = [
         'unique_ref',
+        'container_id',
+        'compartment_x',
+        'compartment_y',
         'source_material_id',
         'type',
         'test',
@@ -25,6 +28,11 @@ class Sample extends Model
         return $this->belongsTo(SourceMaterial::class);
     }
 
+    public function container()
+    {
+        return $this->belongsTo(Container::class);
+    }
+
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
@@ -33,5 +41,10 @@ class Sample extends Model
     public function notes()
     {
         return $this->morphMany(Note::class, 'noteable');
+    }
+
+    public function processingSteps()
+    {
+        return $this->hasMany(ProcessingStep::class);
     }
 }

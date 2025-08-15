@@ -7,13 +7,24 @@ use App\Enums\TestType;
 use App\Filament\Resources\SampleResource\Pages;
 use App\Filament\Resources\SampleResource\RelationManagers;
 use App\Models\Sample;
+use App\Models\ProcessingStepTemplate;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 
 class SampleResource extends Resource
 {
@@ -30,27 +41,64 @@ class SampleResource extends Resource
                 Forms\Components\TextInput::make('unique_ref')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('container_id')
+                    ->relationship('container', 'name')
+                    ->nullable()
+                    ->label('Container'),
                 Forms\Components\Select::make('source_material_id')
                     ->relationship('sourceMaterial', 'unique_ref')
                     ->required(),
-                Forms\Components\Select::make('type')
-                    ->required()    
-                    ->options(SampleType::options()),
-                Forms\Components\Select::make('test')
-                    ->required()
-                    ->options(TestType::options()),
-                Forms\Components\DateTimePicker::make('testing_date'),
-                Forms\Components\TextInput::make('description')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('angle_wrt_source_material')
-                    ->numeric(),
-                Forms\Components\TextInput::make('width_mm')
-                    ->numeric(),
-                Forms\Components\TextInput::make('height_mm')
-                    ->numeric(),
-                Forms\Components\TextInput::make('thickness_mm')
-                    ->numeric(),
-                Forms\Components\TextInput::make('properties'),
+                Section::make('Technical Information')
+                    ->collapsed()
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\Select::make('type')
+                            ->required()
+                            ->options(SampleType::options()),
+                        Forms\Components\Select::make('test')
+                            ->required()
+                            ->options(TestType::options()),
+                        Forms\Components\DateTimePicker::make('testing_date'),
+                        Forms\Components\TextInput::make('description')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('angle_wrt_source_material')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('width_mm')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('height_mm')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('thickness_mm')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('properties'),
+                    ]),
+                Section::make('Processing')
+                    ->collapsed()
+                    ->schema([
+                        Repeater::make('processingSteps')
+                            ->relationship('processingSteps')
+                            ->hiddenLabel()
+                            ->collapsed()
+                            ->schema([
+
+                                // Manual entry fields
+                                TextInput::make('name')
+                                    ->label('Name')
+                                    ->columnSpanFull()
+                                    ->maxWidth('lg')
+                                    ->required(),
+
+                                Textarea::make('content')
+                                    ->label('Text')
+                                    ->rows(3)
+
+                            ])
+                            ->columns(2)
+                            ->defaultItems(0)
+                            ->addActionLabel('Add Processing Step')
+                            ->reorderable()
+                            ->collapsible()
+                            ->itemLabel(fn(array $state): ?string => $state['name'] ?? 'Processing Step')
+                    ])
             ]);
     }
 
@@ -59,7 +107,7 @@ class SampleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('unique_ref')
-                ->formatStateUsing(fn (Sample $record) => $record->sourceMaterial->unique_ref . '-' . $record->unique_ref)
+                    ->formatStateUsing(fn(Sample $record) => $record->sourceMaterial->unique_ref . '-' . $record->unique_ref)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('sourceMaterial.name')
                     ->searchable(),
@@ -70,6 +118,7 @@ class SampleResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -79,10 +128,147 @@ class SampleResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->columns(2)
+            ->schema([
+                Infolists\Components\Section::make('Sample Information')
+                    ->columnSpan(1)
+                    ->icon('heroicon-o-puzzle-piece')
+                    ->columns(2)
+                    ->schema([
+                        Infolists\Components\TextEntry::make('unique_ref')
+                            ->label('Unique Reference')
+                            ->size(Infolists\Components\TextEntry\TextEntrySize::Large)
+                            ->weight('bold'),
+                        Infolists\Components\TextEntry::make('sourceMaterial.unique_ref')
+                            ->label('Source Material Reference')
+                            ->size(Infolists\Components\TextEntry\TextEntrySize::Large),
+                        Infolists\Components\TextEntry::make('type')
+                            ->badge()
+                            ->color('primary'),
+                        Infolists\Components\TextEntry::make('description')
+                            ->markdown()
+                            ->columnSpanFull(),
+                    ]),
+
+                Infolists\Components\Section::make('Processing Steps')
+                    ->icon('heroicon-o-list-bullet')
+                    ->columnSpan(1)
+                    ->headerActions(
+                        [
+                            \Filament\Infolists\Components\Actions\Action::make('addProcessingStep')
+                                ->label('Add processing step')
+                                ->size('xs')
+                                ->icon('heroicon-o-plus')
+                                ->form([
+                                    TextInput::make('name')
+                                        ->label('Step Name')
+                                        ->required(),
+                                    Textarea::make('content')
+                                        ->label('Description')
+                                        ->required(),
+                                ])
+                                ->action(function (array $data, $record) {
+                                    $record->processingSteps()->create($data);
+                                })
+                        ]
+                    )
+                    ->schema([
+                        Infolists\Components\RepeatableEntry::make('processingSteps')
+                            ->hiddenLabel()
+                            ->schema([
+                                Infolists\Components\TextEntry::make('name')
+                                    ->label('Step Name')
+                                    ->hiddenLabel()
+                                    ->weight('bold')
+                                    ->size(Infolists\Components\TextEntry\TextEntrySize::Large),
+                                Infolists\Components\TextEntry::make('content')
+                                    ->label('Description')
+                                    ->hiddenLabel()
+                                    ->markdown()
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(1)
+                            ->contained(false),
+                    ]),
+
+                Infolists\Components\Section::make('Container & Location')
+                    ->icon('heroicon-o-archive-box')
+                    ->columnSpan(1)
+                    ->columns(3)
+                    ->collapsed()
+                    ->schema([
+                        Infolists\Components\TextEntry::make('container.name')
+                            ->label('Container Name')
+                            ->size(Infolists\Components\TextEntry\TextEntrySize::Large)
+                            ->weight('bold'),
+                        Infolists\Components\TextEntry::make('compartment_x')
+                            ->label('Position')
+                            ->formatStateUsing(fn($record) => "x:{$record->compartment_x}, y:{$record->compartment_y}")
+                            ->badge()
+                            ->color('info'),
+                    ]),
+
+                Infolists\Components\Section::make('Technical Specifications')
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->columns(4)
+                    ->columnSpan(1)
+                    ->collapsed()
+                    ->schema([
+                        Infolists\Components\TextEntry::make('angle_wrt_source_material')
+                            ->label('Angle (degrees)')
+                            ->suffix('°'),
+                        Infolists\Components\TextEntry::make('width_mm')
+                            ->label('Width')
+                            ->suffix(' mm'),
+                        Infolists\Components\TextEntry::make('height_mm')
+                            ->label('Height')
+                            ->suffix(' mm'),
+                        Infolists\Components\TextEntry::make('thickness_mm')
+                            ->label('Thickness')
+                            ->suffix(' mm'),
+                        Infolists\Components\TextEntry::make('properties')
+                            ->label('Properties')
+                            ->columnSpanFull()
+                            ->markdown(),
+                    ]),
+                Infolists\Components\Section::make('Documents')
+                    ->icon('heroicon-o-document-text')
+                    ->columnSpan(1)
+                    ->collapsed()
+                    ->headerActions(
+                        [
+                            \Filament\Infolists\Components\Actions\Action::make('addDocument')
+                                ->label('Add document')
+                                ->size('xs')
+                                ->icon('heroicon-o-plus')
+                                ->action(function (array $state) {
+                                    dd($state, $this);
+                                })
+                        ]
+                    )
+                    ->schema([
+                        Infolists\Components\RepeatableEntry::make('documents')
+                            ->hiddenLabel()
+                            ->schema([
+                                Infolists\Components\TextEntry::make('name')
+                                    ->label('Name')
+                                    ->hiddenLabel()
+                                    ->weight('bold')
+                                    ->size(Infolists\Components\TextEntry\TextEntrySize::Large),
+                            ])
+                            ->columns(1)
+                            ->contained(false)
+
+                    ]),
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
-            //
         ];
     }
 
