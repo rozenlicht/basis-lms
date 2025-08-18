@@ -25,6 +25,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            ->domain(config('app.domain'))
             ->id('admin')
             ->path('admin')
             ->login()
@@ -39,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Adminer')
-                    ->url(fn (): string => '/adminer')
+                    ->url(fn(): string => '/adminer')
                     ->icon('heroicon-o-cog-6-tooth'),
             ])
             ->pages([
