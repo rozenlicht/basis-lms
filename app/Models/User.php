@@ -47,7 +47,7 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
-    public function canAccessFilament(): bool
+    public function canAccessPanel(\Filament\Panel $panel): bool
     {
         // @tue.nl or @rozenlicht.nl or @student.tue.nl
         return str_ends_with($this->email, '@tue.nl') || str_ends_with($this->email, '@rozenlicht.nl') || str_ends_with($this->email, '@student.tue.nl');
