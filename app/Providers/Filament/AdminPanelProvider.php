@@ -25,7 +25,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->domain(config('app.domain'))
+            ->domain(config('app.basis_domain'))
             ->id('admin')
             ->path('admin')
             ->login()

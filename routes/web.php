@@ -4,17 +4,10 @@ use App\Http\Controllers\Exports\CompositionReportController;
 use App\Http\Controllers\QrCodeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->away('https://www.tue.nl/en/research/research-labs/multiscale-lab');
-});
 
-
-$domain = config('app.domain');
+$domain = config('app.basis_domain');
 
 $routeDefinition = function () {
-    Route::get('/', function () {
-        return redirect()->route('filament.admin.auth.login');
-    });
     Route::get('/login', function () {
         return redirect()->route('filament.admin.auth.login');
     })->name('login');
@@ -24,6 +17,15 @@ $routeDefinition = function () {
 // DOMAIN ROUTES
 
 if ($domain) {
+    Route::domain($domain)->get('/', function () {
+        return redirect()->route('filament.admin.auth.login');
+    });
+    Route::domain('www.' . config('app.domain'))->get('/', function () {
+        return redirect()->away('https://www.tue.nl/en/research/research-labs/multiscale-lab');
+    });
+    Route::domain(config('app.domain'))->get('/', function () {
+        return redirect()->away('https://www.tue.nl/en/research/research-labs/multiscale-lab');
+    });
     Route::domain($domain)->group($routeDefinition);
 } else {
     $routeDefinition();
