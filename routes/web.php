@@ -12,6 +12,11 @@ $routeDefinition = function () {
         return redirect()->route('filament.admin.auth.login');
     })->name('login');
     Route::get('/qr-code/{containerId}', [QrCodeController::class, 'show'])->name('qr-code.show');
+    
+    // Redirect all /admin/* requests to /app/*
+    Route::get('/admin/{path}', function ($path) {
+        return redirect('/app/' . $path, 301);
+    })->where('path', '.*');
 };
 
 // DOMAIN ROUTES

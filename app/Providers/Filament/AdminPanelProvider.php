@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->domain(config('app.basis_domain'))
             ->id('admin')
-            ->path('admin')
+            ->path('app')
             ->login()
             ->darkMode(false)
             ->brandLogo(asset('images/logo.png'))
