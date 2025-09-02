@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Exports\CompositionReportController;
 use App\Http\Controllers\QrCodeController;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,12 @@ $routeDefinition = function () {
         return redirect()->route('filament.admin.auth.login');
     })->name('login');
     Route::get('/qr-code/{containerId}', [QrCodeController::class, 'show'])->name('qr-code.show');
+    
+    // Document routes with authentication
+    Route::middleware('auth')->group(function () {
+        Route::get('/documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
+        Route::get('/documents/{document}/view', [DocumentController::class, 'view'])->name('documents.view');
+    });
     
     // Redirect all /admin/* requests to /app/*
     Route::get('/admin/{path}', function ($path) {

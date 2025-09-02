@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\DocumentType;
 use App\Filament\Resources\DocumentResource\Pages;
 use App\Filament\Resources\DocumentResource\RelationManagers;
 use App\Models\Document;
@@ -28,21 +29,38 @@ class DocumentResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('documentable_type')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Related Model Type'),
+
                 Forms\Components\TextInput::make('documentable_id')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->label('Related Model ID'),
+
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('type')
+                    ->maxLength(255)
+                    ->label('Document Name')
+                    ->placeholder('Enter document name'),
+
+                Forms\Components\Select::make('type')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('description')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('file_path')
+                    ->options(DocumentType::options())
+                    ->label('Document Type')
+                    ->placeholder('Select document type'),
+
+                Forms\Components\Textarea::make('description')
+                    ->maxLength(500)
+                    ->label('Description')
+                    ->placeholder('Enter document description (optional)')
+                    ->rows(3),
+
+                Forms\Components\FileUpload::make('file_path')
                     ->required()
-                    ->maxLength(255),
+                    ->label('Upload File')
+                    ->directory('documents')
+                    ->helperText('Upload any file type. No size restrictions.')
+                    ->storeFileNamesIn('original_filename'),
             ]);
     }
 
@@ -50,39 +68,99 @@ class DocumentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('documentable_type')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('documentable_id')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+
                 Tables\Columns\TextColumn::make('type')
-                    ->searchable(),
+                    ->badge()
+                    ->color(fn (DocumentType $state): string => match ($state) {
+                        DocumentType::Drawing => 'info',
+                        DocumentType::Photo => 'success',
+                        DocumentType::Specification => 'warning',
+                        DocumentType::Other => 'gray',
+                    })
+                    ->formatStateUsing(fn (DocumentType $state): string => $state->label()),
+
                 Tables\Columns\TextColumn::make('description')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('file_path')
-                    ->searchable(),
+                    ->limit(50)
+                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+                        if (strlen($state) <= 50) {
+                            return null;
+                        }
+                        return $state;
+                    }),
+
+                Tables\Columns\TextColumn::make('file_size')
+                    ->label('Size')
+                    ->alignCenter(),
+
+                Tables\Columns\TextColumn::make('documentable_type')
+                    ->label('Related To')
+                    ->searchable()
+                    ->formatStateUsing(fn (string $state): string => class_basename($state)),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('type')
+                    ->options(DocumentType::options())
+                    ->label('Document Type'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('view')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->color('success')
+                    ->url(fn ($record) => $record->view_url)
+                    ->openUrlInNewTab()
+                    ->visible(fn ($record) => in_array(
+                        \Storage::mimeType($record->file_path) ?? '',
+                        ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']
+                    )),
+
+                Tables\Actions\Action::make('download')
+                    ->label('Download')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('info')
+                    ->url(fn ($record) => $record->download_url)
+                    ->openUrlInNewTab(),
+
+                Tables\Actions\EditAction::make()
+                    ->label('Edit')
+                    ->icon('heroicon-o-pencil'),
+
+                Tables\Actions\DeleteAction::make()
+                    ->label('Delete')
+                    ->icon('heroicon-o-trash')
+                    ->requiresConfirmation()
+                    ->modalHeading('Delete Document')
+                    ->modalDescription('Are you sure you want to delete this document? This action cannot be undone.')
+                    ->modalSubmitActionLabel('Yes, delete it'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->requiresConfirmation()
+                        ->modalHeading('Delete Documents')
+                        ->modalDescription('Are you sure you want to delete the selected documents? This action cannot be undone.')
+                        ->modalSubmitActionLabel('Yes, delete them'),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No documents found')
+            ->emptyStateDescription('Create your first document to get started.')
+            ->emptyStateIcon('heroicon-o-document-plus');
     }
 
     public static function getRelations(): array
