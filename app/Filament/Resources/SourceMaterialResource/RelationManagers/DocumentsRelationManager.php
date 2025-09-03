@@ -65,10 +65,10 @@ class DocumentsRelationManager extends RelationManager
                     ->square()
                     ->url(fn ($record) => $record->view_url)
                     ->openUrlInNewTab()
-                    ->visible(fn ($record) => in_array(
+                    ->visible(fn ($record) => $record ? in_array(
                         Storage::mimeType($record->file_path) ?? '',
                         ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-                    )),
+                    ) : false),
 
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
