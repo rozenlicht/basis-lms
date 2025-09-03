@@ -28,7 +28,7 @@ class DocumentController extends Controller
         $originalFilename = $document->original_filename ?? basename($document->file_path);
 
         return response()->streamDownload(function () use ($filePath) {
-            echo file_get_contents($filePath);
+            echo Storage::get($filePath);
         }, $originalFilename, [
             'Content-Type' => Storage::mimeType($document->file_path),
             'Content-Disposition' => 'attachment; filename="' . $originalFilename . '"',
@@ -57,7 +57,7 @@ class DocumentController extends Controller
         ]) ? 'inline' : 'attachment';
     
         return response()->stream(function () use ($filePath) {
-            echo file_get_contents($filePath);
+            echo Storage::get($filePath);
         }, 200, [
             'Content-Type' => $mimeType,
             'Content-Disposition' => $disposition . '; filename="' . basename($filePath) . '"',

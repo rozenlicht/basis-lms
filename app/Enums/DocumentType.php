@@ -13,6 +13,7 @@ enum DocumentType: string
     case Drawing       = 'drawing';
     case Photo         = 'photo';
     case Specification = 'specification';
+    case Micrograph    = 'micrograph';
     case Other         = 'other';
 
     /**
@@ -24,6 +25,7 @@ enum DocumentType: string
             self::Drawing       => 'Drawing',
             self::Photo         => 'Photo',
             self::Specification => 'Specification',
+            self::Micrograph    => 'Micrograph',
             self::Other         => 'Other',
         };
     }
