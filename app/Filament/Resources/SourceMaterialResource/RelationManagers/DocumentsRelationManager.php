@@ -46,7 +46,6 @@ class DocumentsRelationManager extends RelationManager
                 Forms\Components\FileUpload::make('file_path')
                     ->required()
                     ->label('Upload File')
-                    ->disk('local')
                     ->directory('documents')
                     ->helperText('Upload any file type. No size restrictions.')
                     ->storeFileNamesIn('original_filename'),
