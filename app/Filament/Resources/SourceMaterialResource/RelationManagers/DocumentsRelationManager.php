@@ -73,6 +73,16 @@ class DocumentsRelationManager extends RelationManager
                     ->sortable()
                     ->weight('bold'),
 
+                Tables\Columns\TextColumn::make('type')
+                    ->badge()
+                    ->color(fn (DocumentType $state): string => match ($state) {
+                        DocumentType::Drawing => 'info',
+                        DocumentType::Photo => 'success',
+                        DocumentType::Specification => 'warning',
+                        DocumentType::Other => 'gray',
+                    })
+                    ->formatStateUsing(fn (DocumentType $state): string => $state->label()),
+
                 Tables\Columns\TextColumn::make('description')
                     ->limit(50)
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
@@ -82,20 +92,6 @@ class DocumentsRelationManager extends RelationManager
                         }
                         return $state;
                     }),
-
-                Tables\Columns\TextColumn::make('file_size')
-                    ->label('Size')
-                    ->alignCenter(),
-
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
