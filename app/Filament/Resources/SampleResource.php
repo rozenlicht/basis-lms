@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\DocumentType;
 use App\Enums\SampleType;
 use App\Enums\TestType;
 use App\Filament\Resources\SampleResource\Pages;
@@ -20,6 +21,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -236,16 +238,43 @@ class SampleResource extends Resource
                     ]),
                 Infolists\Components\Section::make('Documents')
                     ->icon('heroicon-o-document-text')
-                    ->columnSpan(1)
-                    ->collapsed()
+                    ->columnSpan(2)
+                    ->collapsible()
+                    ->collapsed(false)
                     ->headerActions(
                         [
                             \Filament\Infolists\Components\Actions\Action::make('addDocument')
                                 ->label('Add document')
                                 ->size('xs')
                                 ->icon('heroicon-o-plus')
-                                ->action(function (array $state) {
-                                    dd($state, $this);
+                                ->form([
+                                    TextInput::make('name')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->label('Document Name')
+                                        ->placeholder('Enter document name'),
+
+                                    Select::make('type')
+                                        ->required()
+                                        ->options(DocumentType::options())
+                                        ->label('Document Type')
+                                        ->placeholder('Select document type'),
+
+                                    Textarea::make('description')
+                                        ->maxLength(500)
+                                        ->label('Description')
+                                        ->placeholder('Enter document description (optional)')
+                                        ->rows(3),
+
+                                    FileUpload::make('file_path')
+                                        ->required()
+                                        ->label('Upload File')
+                                        ->directory('documents')
+                                        ->helperText('Upload any file type. No size restrictions.')
+                                        ->storeFileNamesIn('original_filename'),
+                                ])
+                                ->action(function (array $data, $record) {
+                                    $record->documents()->create($data);
                                 })
                         ]
                     )
@@ -258,8 +287,42 @@ class SampleResource extends Resource
                                     ->hiddenLabel()
                                     ->weight('bold')
                                     ->size(Infolists\Components\TextEntry\TextEntrySize::Large),
+
+                                Infolists\Components\TextEntry::make('type')
+                                    ->badge()
+                                    ->color(fn (DocumentType $state): string => match ($state) {
+                                        DocumentType::Drawing => 'info',
+                                        DocumentType::Photo => 'success',
+                                        DocumentType::Specification => 'warning',
+                                        DocumentType::Other => 'gray',
+                                    })
+                                    ->formatStateUsing(fn (DocumentType $state): string => $state->label()),
+
+                                Infolists\Components\TextEntry::make('description')
+                                    ->label('Description')
+                                    ->hiddenLabel()
+                                    ->markdown()
+                                    ->columnSpanFull()
+                                    ->visible(fn ($state) => !empty($state)),
+
+                                Infolists\Components\Actions::make([
+                                    Infolists\Components\Actions\Action::make('download')
+                                        ->label('Download')
+                                        ->icon('heroicon-o-arrow-down-tray')
+                                        ->color('info')
+                                        ->url(fn ($record) => $record->download_url)
+                                        ->openUrlInNewTab(),
+
+                                    Infolists\Components\Actions\Action::make('view')
+                                        ->label('View')
+                                        ->icon('heroicon-o-eye')
+                                        ->color('success')
+                                        ->url(fn ($record) => $record->view_url)
+                                        ->openUrlInNewTab(),
+                                ])
+                                ->columnSpanFull(),
                             ])
-                            ->columns(1)
+                            ->columns(2)
                             ->contained(false)
 
                     ]),
