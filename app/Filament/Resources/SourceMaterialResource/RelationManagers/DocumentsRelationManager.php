@@ -46,6 +46,7 @@ class DocumentsRelationManager extends RelationManager
                 Forms\Components\FileUpload::make('file_path')
                     ->required()
                     ->label('Upload File')
+                    ->disk('local')
                     ->directory('documents')
                     ->helperText('Upload any file type. No size restrictions.')
                     ->storeFileNamesIn('original_filename'),
@@ -57,33 +58,21 @@ class DocumentsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\ImageColumn::make('view_url')
+                Tables\Columns\ImageColumn::make('preview_url')
                     ->label('Preview')
                     ->size(60)
                     ->height(120)
                     ->width(120)
                     ->square()
                     ->url(fn ($record) => $record->view_url)
+                    // if not an image, show a placeholder image
                     ->openUrlInNewTab()
-                    ->visible(fn ($record) => $record ? in_array(
-                        Storage::mimeType($record->file_path) ?? '',
-                        ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-                    ) : false),
+                    ,
 
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
-
-                Tables\Columns\TextColumn::make('type')
-                    ->badge()
-                    ->color(fn (DocumentType $state): string => match ($state) {
-                        DocumentType::Drawing => 'info',
-                        DocumentType::Photo => 'success',
-                        DocumentType::Specification => 'warning',
-                        DocumentType::Other => 'gray',
-                    })
-                    ->formatStateUsing(fn (DocumentType $state): string => $state->label()),
 
                 Tables\Columns\TextColumn::make('description')
                     ->limit(50)
@@ -120,30 +109,25 @@ class DocumentsRelationManager extends RelationManager
                     ->icon('heroicon-o-plus'),
             ])
             ->actions([
-                Tables\Actions\Action::make('view')
-                    ->label('View')
-                    ->icon('heroicon-o-eye')
-                    ->color('success')
-                    ->url(fn ($record) => $record->view_url)
-                    ->openUrlInNewTab()
-                    ->visible(fn ($record) => in_array(
-                        Storage::mimeType($record->file_path) ?? '',
-                        ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']
-                    )),
-
                 Tables\Actions\Action::make('download')
                     ->label('Download')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('info')
+                    ->hiddenLabel()
+                    ->button()
                     ->url(fn ($record) => $record->download_url)
                     ->openUrlInNewTab(),
 
                 Tables\Actions\EditAction::make()
                     ->label('Edit')
+                    ->hiddenLabel()
+                    ->button()
                     ->icon('heroicon-o-pencil'),
 
                 Tables\Actions\DeleteAction::make()
                     ->label('Delete')
+                    ->hiddenLabel()
+                    ->button()
                     ->icon('heroicon-o-trash')
                     ->requiresConfirmation()
                     ->modalHeading('Delete Document')

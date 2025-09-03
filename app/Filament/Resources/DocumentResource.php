@@ -68,6 +68,16 @@ class DocumentResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('view_url')
+                    ->label('Preview')
+                    ->size(60)
+                    ->height(120)
+                    ->width(120)
+                    ->square()
+                    ->url(fn ($record) => $record->view_url)
+                    ->openUrlInNewTab()
+                    ,
+
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable()

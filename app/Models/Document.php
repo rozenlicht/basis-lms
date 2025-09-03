@@ -32,6 +32,19 @@ class Document extends Model
         return route('documents.download', $this);
     }
 
+    public function getPreviewUrlAttribute(): string
+    {
+        // if image (based on file_path), return view url, otherwise, return images/placeholder-doc.jpg
+        $extension = pathinfo($this->file_path, PATHINFO_EXTENSION);
+        if (
+            in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])
+        ) {
+            return $this->view_url;
+        }
+
+        return asset('images/placeholder-doc.jpg');
+    }
+
     public function getViewUrlAttribute(): string
     {
         return route('documents.view', $this);

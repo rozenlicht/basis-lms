@@ -20,6 +20,7 @@ class DocumentController extends Controller
 
         // Check if file exists
         if (!Storage::exists($document->file_path)) {
+            echo $document->file_path;
             abort(404, 'File not found.');
         }
 
@@ -36,29 +37,30 @@ class DocumentController extends Controller
 
     public function view(Document $document): StreamedResponse
     {
-        // Check if user is authenticated
         if (!auth()->check()) {
             abort(403, 'Unauthorized access to document.');
         }
-
-        // Check if file exists
+    
         if (!Storage::exists($document->file_path)) {
             abort(404, 'File not found.');
         }
-
+    
         $filePath = Storage::path($document->file_path);
         $mimeType = Storage::mimeType($document->file_path);
-
-        // For images and PDFs, we can display them inline
-        $disposition = in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']) 
-            ? 'inline' 
-            : 'attachment';
-
-        return response()->streamDownload(function () use ($filePath) {
+    
+        $disposition = in_array($mimeType, [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+            'application/pdf'
+        ]) ? 'inline' : 'attachment';
+    
+        return response()->stream(function () use ($filePath) {
             echo file_get_contents($filePath);
-        }, basename($document->file_path), [
+        }, 200, [
             'Content-Type' => $mimeType,
-            'Content-Disposition' => $disposition . '; filename="' . basename($document->file_path) . '"',
+            'Content-Disposition' => $disposition . '; filename="' . basename($filePath) . '"',
         ]);
     }
 }
