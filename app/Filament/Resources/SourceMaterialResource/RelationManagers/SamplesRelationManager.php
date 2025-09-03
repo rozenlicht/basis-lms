@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SourceMaterialResource\RelationManagers;
 
+use App\Filament\Resources\SampleResource;
 use App\Models\Sample;
 use Filament\Actions\ViewAction;
 use Filament\Forms;
@@ -44,11 +45,12 @@ class SamplesRelationManager extends RelationManager
             ->filters([
                 //
             ])
+            ->recordUrl(fn (Sample $record) => SampleResource::getUrl('view', ['record' => $record]))
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
+                
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
