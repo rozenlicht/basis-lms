@@ -57,6 +57,19 @@ class DocumentsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
+                Tables\Columns\ImageColumn::make('view_url')
+                    ->label('Preview')
+                    ->size(60)
+                    ->height(120)
+                    ->width(120)
+                    ->square()
+                    ->url(fn ($record) => $record->view_url)
+                    ->openUrlInNewTab()
+                    ->visible(fn ($record) => in_array(
+                        Storage::mimeType($record->file_path) ?? '',
+                        ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+                    )),
+
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable()
@@ -114,7 +127,7 @@ class DocumentsRelationManager extends RelationManager
                     ->url(fn ($record) => $record->view_url)
                     ->openUrlInNewTab()
                     ->visible(fn ($record) => in_array(
-                        \Storage::mimeType($record->file_path) ?? '',
+                        Storage::mimeType($record->file_path) ?? '',
                         ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']
                     )),
 
