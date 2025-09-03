@@ -293,6 +293,7 @@ class SampleResource extends Resource
                                     ->color(fn (DocumentType $state): string => match ($state) {
                                         DocumentType::Drawing => 'info',
                                         DocumentType::Photo => 'success',
+                                        DocumentType::Micrograph => 'success',
                                         DocumentType::Specification => 'warning',
                                         DocumentType::Other => 'gray',
                                     })
