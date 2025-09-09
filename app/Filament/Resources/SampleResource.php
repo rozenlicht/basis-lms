@@ -233,8 +233,7 @@ class SampleResource extends Resource
                             ->suffix(' mm'),
                         Infolists\Components\KeyValueEntry::make('properties')
                             ->label('Properties')
-                            ->columnSpanFull()
-                            ->markdown(),
+                            ->columnSpanFull(),
                     ]),
                 Infolists\Components\Section::make('Documents')
                     ->icon('heroicon-o-document-text')
