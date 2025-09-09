@@ -91,6 +91,7 @@ class SampleResource extends Resource
 
                                 Textarea::make('content')
                                     ->label('Text')
+                                    ->formatStateUsing(fn(array $state): string => nl2br($state['content']) ?? '')
                                     ->rows(3)
 
                             ])
