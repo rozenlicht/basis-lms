@@ -3,8 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Enums\DocumentType;
-use App\Enums\SampleType;
-use App\Enums\TestType;
 use App\Filament\Resources\SampleResource\Pages;
 use App\Filament\Resources\SampleResource\RelationManagers;
 use App\Models\Sample;
@@ -54,17 +52,8 @@ class SampleResource extends Resource
                     ->collapsed()
                     ->columns(2)
                     ->schema([
-                        Forms\Components\Select::make('type')
-                            ->required()
-                            ->options(SampleType::options()),
-                        Forms\Components\Select::make('test')
-                            ->required()
-                            ->options(TestType::options()),
-                        Forms\Components\DateTimePicker::make('testing_date'),
                         Forms\Components\TextInput::make('description')
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('angle_wrt_source_material')
-                            ->numeric(),
                         Forms\Components\TextInput::make('width_mm')
                             ->numeric(),
                         Forms\Components\TextInput::make('height_mm')
@@ -113,8 +102,6 @@ class SampleResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('sourceMaterial.name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('type')
-                    ->searchable(),
             ])
             ->filters([
                 //
@@ -147,9 +134,6 @@ class SampleResource extends Resource
                         Infolists\Components\TextEntry::make('sourceMaterial.unique_ref')
                             ->label('Source Material Reference')
                             ->size(Infolists\Components\TextEntry\TextEntrySize::Large),
-                        Infolists\Components\TextEntry::make('type')
-                            ->badge()
-                            ->color('primary'),
                         Infolists\Components\TextEntry::make('description')
                             ->markdown()
                             ->columnSpanFull(),
@@ -220,9 +204,6 @@ class SampleResource extends Resource
                     ->columnSpan(1)
                     ->collapsed()
                     ->schema([
-                        Infolists\Components\TextEntry::make('angle_wrt_source_material')
-                            ->label('Angle (degrees)')
-                            ->suffix('°'),
                         Infolists\Components\TextEntry::make('width_mm')
                             ->label('Width')
                             ->suffix(' mm'),
