@@ -285,17 +285,17 @@ class SampleResource extends Resource
                                     ->schema([
                                         Infolists\Components\ImageEntry::make('preview_url')
                                             ->label('')
-                                            ->height(120)
-                                            ->width(120)
+                                            ->height(100)
+                                            ->width(100)
                                             ->square()
-                                            ->extraAttributes(['class' => 'rounded-lg shadow-md']),
+                                            ->extraAttributes(['class' => 'rounded-lg shadow-md mx-auto']),
 
                                         Infolists\Components\TextEntry::make('name')
                                             ->label('')
                                             ->hiddenLabel()
                                             ->weight('bold')
                                             ->size(Infolists\Components\TextEntry\TextEntrySize::Medium)
-                                            ->extraAttributes(['class' => 'mt-2']),
+                                            ->extraAttributes(['class' => 'mt-2 text-center']),
 
                                         Infolists\Components\TextEntry::make('type')
                                             ->label('')
@@ -309,14 +309,14 @@ class SampleResource extends Resource
                                                 DocumentType::Other => 'gray',
                                             })
                                             ->formatStateUsing(fn(DocumentType $state): string => $state->label())
-                                            ->extraAttributes(['class' => 'mt-1']),
+                                            ->extraAttributes(['class' => 'mt-1 text-center']),
 
                                         Infolists\Components\TextEntry::make('description')
                                             ->label('')
                                             ->hiddenLabel()
                                             ->markdown()
-                                            ->limit(60)
-                                            ->extraAttributes(['class' => 'mt-2 text-sm text-gray-600'])
+                                            ->limit(50)
+                                            ->extraAttributes(['class' => 'mt-2 text-sm text-gray-600 text-center'])
                                             ->visible(fn($state) => !empty($state)),
 
                                         Infolists\Components\Actions::make([
@@ -336,16 +336,17 @@ class SampleResource extends Resource
                                                 ->url(fn($record) => $record->download_url)
                                                 ->openUrlInNewTab(),
                                         ])
-                                            ->extraAttributes(['class' => 'mt-3']),
+                                            ->extraAttributes(['class' => 'mt-3 justify-center'])
+                                            ->alignment('center'),
                                     ])
                                     ->extraAttributes([
-                                        'class' => 'border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow duration-200 bg-white'
+                                        'class' => 'border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow duration-200 bg-white w-full max-w-xs mx-auto'
                                     ])
                                     ->columnSpan(1),
                             ])
-                            ->columns(4)
+                            ->columns(1)
                             ->contained(false)
-                            ->extraAttributes(['class' => 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'])
+                            ->extraAttributes(['class' => 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center'])
 
                     ]),
             ]);
