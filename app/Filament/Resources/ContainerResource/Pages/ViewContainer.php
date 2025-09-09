@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ContainerResource\Pages;
 
 use App\Filament\Resources\ContainerResource;
 use App\Filament\Resources\SampleResource;
+use App\Models\ContainerPosition;
 use Filament\Actions;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
@@ -27,25 +28,50 @@ class ViewContainer extends Page
     public function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('connectSample')
-                ->label('Register Sample')
+            Actions\Action::make('addPosition')
+                ->label('Add Position')
                 ->icon('heroicon-o-plus')
                 ->form([
+                    \Filament\Forms\Components\TextInput::make('x')
+                        ->label('X Position')
+                        ->required()
+                        ->numeric()
+                        ->minValue(1),
+                    \Filament\Forms\Components\TextInput::make('y')
+                        ->label('Y Position')
+                        ->required()
+                        ->numeric()
+                        ->minValue(1),
+                    \Filament\Forms\Components\Radio::make('position_type')
+                        ->label('Position Type')
+                        ->options([
+                            'sample' => 'Sample',
+                            'custom' => 'Custom Name',
+                        ])
+                        ->default('sample')
+                        ->required()
+                        ->reactive(),
                     \Filament\Forms\Components\Select::make('sample_id')
-                        ->label('Select Sample')
-                        ->options(\App\Models\Sample::whereNull('container_id')->pluck('unique_ref', 'id'))
-                        ->required(),
-                    \Filament\Forms\Components\TextInput::make('x'),
-                    \Filament\Forms\Components\TextInput::make('y'),
+                        ->label('Sample')
+                        ->options(function() {
+                            $assignedSampleIds = ContainerPosition::whereNotNull('sample_id')->pluck('sample_id');
+                            return \App\Models\Sample::query()
+                                ->whereNotIn('id', $assignedSampleIds)
+                                ->pluck('unique_ref', 'id');
+                        })
+                        ->searchable()
+                        ->placeholder('Select Sample')
+                        ->visible(fn($get) => $get('position_type') === 'sample'),
+                    \Filament\Forms\Components\TextInput::make('custom_name')
+                        ->label('Custom Name')
+                        ->placeholder('Enter custom name')
+                        ->visible(fn($get) => $get('position_type') === 'custom'),
                 ])
                 ->action(function (array $data): void {
-                    $sample = \App\Models\Sample::find($data['sample_id']);
-                    if ($sample) {
-                        $sample->update([
-                            'container_id' => $this->record->id,
-                            'compartment_x' => $data['x'],
-                            'compartment_y' => $data['y']
-                        ]);
+                    if ($data['position_type'] === 'sample' && $data['sample_id']) {
+                        $this->record->setPositionSample($data['x'], $data['y'], $data['sample_id']);
+                    } elseif ($data['position_type'] === 'custom' && $data['custom_name']) {
+                        $this->record->setPositionCustomName($data['x'], $data['y'], $data['custom_name']);
                     }
                 }),
             Actions\Action::make('printQR')
@@ -62,15 +88,12 @@ class ViewContainer extends Page
         ];
     }
 
-    public function deleteSample(int $sampleId)
+    public function deletePosition(int $x, int $y)
     {
-        $sample = \App\Models\Sample::find($sampleId);
-        if ($sample) {
-            $sample->update(['container_id' => null, 'compartment_x' => null, 'compartment_y' => null]);
-            return redirect(ContainerResource::getUrl('view', [
-                'record' => $this->record->id,
-            ]))->with('success', 'Sample removed from container');
-        }
+        $this->record->clearPosition($x, $y);
+        return redirect(ContainerResource::getUrl('view', [
+            'record' => $this->record->id,
+        ]))->with('success', 'Position cleared');
     }
 
     public function gotoSample(int $sampleId): void
@@ -78,14 +101,14 @@ class ViewContainer extends Page
         $sample = \App\Models\Sample::find($sampleId);
         if ($sample) {
             // Redirect to the sample edit page or perform any other action
-            $this->redirect(SampleResource::getUrl('edit', [
+            $this->redirect(SampleResource::getUrl('view', [
                 'record' => $sampleId,
             ]));
         }
     }
 
-    public function openConnectSampleModal(int $x, int $y): void
+    public function openAddPositionModal(int $x, int $y): void
     {
-        $this->mountAction('connectSample', ['x' => $x, 'y' => $y]);
+        $this->mountAction('addPosition', ['x' => $x, 'y' => $y]);
     }
 }

@@ -5,41 +5,41 @@
                 <tr>
                     @for ($x = 0; $x < $record->compartments_x_size; $x++)
                         @php
-                            $sample = $record->samples->firstWhere(fn ($sample) =>
-                                $sample->compartment_x - 1 == $x && $sample->compartment_y - 1 == $y
-                            );
+                            $position = $record->getPositionAt($x + 1, $y + 1);
+                            $content = $record->getContentAt($x + 1, $y + 1);
+                            $isOccupied = $record->isPositionOccupied($x + 1, $y + 1);
                         @endphp
 
                         <td class="border border-gray-200 p-0 align-middle">
                             <div
                                 @class([
                                     'w-full h-16 px-2 flex flex-col items-center justify-center text-center select-none',
-                                    'hover:bg-gray-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-300' => $sample,
+                                    'hover:bg-gray-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-300' => $isOccupied,
                                 ])
-                                @if($sample)
-                                    wire:click="gotoSample({{ $sample->id }})"
+                                @if($isOccupied && $position && $position->sample)
+                                    wire:click="gotoSample({{ $position->sample->id }})"
                                     role="button"
                                     tabindex="0"
                                 @endif
                             >
                                 <div class="flex items-center justify-center w-full">
-                                    @if ($sample)
+                                    @if ($isOccupied)
                                         <div class="text-sm font-medium truncate max-w-full flex-1">
-                                            {{ $sample->unique_ref }}
+                                            {{ $content }}
                                         </div>
                                         <div class="bg-danger-500 hover:bg-danger-600 p-5 rounded">
                                             <x-filament::icon-button
                                                 icon="heroicon-o-trash"
                                                 size="sm"
                                                 color="danger"
-                                                wire:click.prevent="deleteSample({{ $sample->id }})"
+                                                wire:click.prevent="deletePosition({{ $x + 1 }}, {{ $y + 1 }})"
                                                 class="ml-2"
                                             />
                                         </div>
                                     @else
                                         <div
                                             class="text-sm text-gray-400 flex-1 cursor-pointer hover:bg-gray-100 rounded px-2 py-1"
-                                            wire:click="openConnectSampleModal({{ $x + 1 }}, {{ $y + 1 }})"
+                                            wire:click="openAddPositionModal({{ $x + 1 }}, {{ $y + 1 }})"
                                             role="button"
                                             tabindex="0"
                                         >
