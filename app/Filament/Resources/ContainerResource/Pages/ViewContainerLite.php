@@ -36,6 +36,7 @@ class ViewContainerLite extends Page
             Actions\Action::make('addPosition')
                 ->label('Add Position')
                 ->icon('heroicon-o-plus')
+                ->modalWidth('sm')
                 ->form([
                     \Filament\Forms\Components\TextInput::make('x')
                         ->label('X Position')
@@ -79,6 +80,21 @@ class ViewContainerLite extends Page
                         $this->record->setPositionCustomName($data['x'], $data['y'], $data['custom_name']);
                     }
                 }),
+            Actions\Action::make('confirmDelete')
+                ->label('Delete Position')
+                ->icon('heroicon-o-trash')
+                ->color('danger')
+                ->modalHeading('Delete Position')
+                ->modalDescription('Are you sure you want to delete this position? This action cannot be undone.')
+                ->modalSubmitActionLabel('Delete')
+                ->modalCancelActionLabel('Cancel')
+                ->action(function (array $data): void {
+                    $this->record->clearPosition($data['x'], $data['y']);
+                    $this->redirect(ContainerResource::getUrl('view-lite', [
+                        'record' => $this->record->id,
+                    ]));
+                })
+                ->hidden(),
         ];
     }
 
@@ -93,8 +109,28 @@ class ViewContainerLite extends Page
         }
     }
 
+    public function deletePosition(int $x, int $y)
+    {
+        $this->record->clearPosition($x, $y);
+        return redirect(ContainerResource::getUrl('view-lite', [
+            'record' => $this->record->id,
+        ]))->with('success', 'Position cleared');
+    }
+
+    public function confirmDeletePosition(int $x, int $y)
+    {
+        $this->mountAction('confirmDelete', [
+            'x' => $x,
+            'y' => $y
+        ]);
+    }
+
     public function openAddPositionModal(int $x, int $y): void
     {
-        $this->mountAction('addPosition', ['x' => $x, 'y' => $y]);
+        $this->mountAction('addPosition', [
+            'x' => $x, 
+            'y' => $y,
+            'position_type' => 'sample'
+        ]);
     }
 }
