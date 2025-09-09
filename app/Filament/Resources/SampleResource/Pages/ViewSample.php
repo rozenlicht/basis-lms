@@ -13,12 +13,18 @@ class ViewSample extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
+            Actions\EditAction::make()
+                ->size('sm'),
         ];
     }
 
     public function getTitle(): string
     {
         return $this->record->unique_ref;
+    }
+
+    protected function getInfolistSchema(): array
+    {
+        return \App\Filament\Resources\SampleResource\SampleInfolistSchema\SampleInfolistSchema::schema(false);
     }
 }

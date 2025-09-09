@@ -17,7 +17,10 @@ final class SampleInfolistSchema
             Infolists\Components\Section::make('Sample Information')
                 ->columnSpan(1)
                 ->icon('heroicon-o-puzzle-piece')
-                ->columns(2)
+                ->columns([
+                    'sm' => 1,
+                    'md' => 2,
+                ])
                 ->schema([
                     Infolists\Components\TextEntry::make('unique_ref')
                         ->label('Unique Reference')
@@ -34,19 +37,23 @@ final class SampleInfolistSchema
             Infolists\Components\Section::make('Processing Steps')
                 ->icon('heroicon-o-list-bullet')
                 ->columnSpan(1)
+                ->collapsible()
+                ->collapsed(true)
                 ->headerActions(
                     [
                         \Filament\Infolists\Components\Actions\Action::make('addProcessingStep')
-                            ->label('Add processing step')
-                            ->size('xs')
+                            ->label('Add Step')
+                            ->size('sm')
                             ->icon('heroicon-o-plus')
+                            ->modalWidth('sm')
                             ->form([
                                 TextInput::make('name')
                                     ->label('Step Name')
                                     ->required(),
                                 Textarea::make('content')
                                     ->label('Description')
-                                    ->required(),
+                                    ->required()
+                                    ->rows(3),
                             ])
                             ->action(function (array $data, $record) {
                                 $record->processingSteps()->create($data);
@@ -61,7 +68,7 @@ final class SampleInfolistSchema
                                 ->label('Step Name')
                                 ->hiddenLabel()
                                 ->weight('bold')
-                                ->size(Infolists\Components\TextEntry\TextEntrySize::Large),
+                                ->size(Infolists\Components\TextEntry\TextEntrySize::Medium),
                             Infolists\Components\TextEntry::make('content')
                                 ->label('Description')
                                 ->formatStateUsing(fn (string $state): string => nl2br($state) ?? '')
@@ -70,13 +77,17 @@ final class SampleInfolistSchema
                                 ->columnSpanFull(),
                         ])
                         ->columns(1)
-                        ->contained(false),
+                        ->contained(false)
+                        ->extraAttributes(['class' => 'space-y-3']),
                 ]),
 
             Infolists\Components\Section::make('Container & Location')
                 ->icon('heroicon-o-archive-box')
                 ->columnSpan(1)
-                ->columns(3)
+                ->columns([
+                    'sm' => 1,
+                    'md' => 2,
+                ])
                 ->collapsed($collapsed)
                 ->schema([
                     Infolists\Components\TextEntry::make('container.name')
@@ -92,7 +103,11 @@ final class SampleInfolistSchema
 
             Infolists\Components\Section::make('Technical Specifications')
                 ->icon('heroicon-o-cog-6-tooth')
-                ->columns(4)
+                ->columns([
+                    'sm' => 1,
+                    'md' => 2,
+                    'lg' => 4,
+                ])
                 ->columnSpan(1)
                 ->collapsed($collapsed)
                 ->schema([
@@ -111,15 +126,16 @@ final class SampleInfolistSchema
                 ]),
             Infolists\Components\Section::make('Documents')
                 ->icon('heroicon-o-document-text')
-                ->columnSpan(2)
+                ->columnSpan(1)
                 ->collapsible()
                 ->collapsed(false)
                 ->headerActions(
                     [
                         \Filament\Infolists\Components\Actions\Action::make('addDocument')
-                            ->label('Add document')
-                            ->size('xs')
+                            ->label('Add Document')
+                            ->size('sm')
                             ->icon('heroicon-o-plus')
+                            ->modalWidth('sm')
                             ->form([
                                 TextInput::make('name')
                                     ->required()
@@ -220,7 +236,7 @@ final class SampleInfolistSchema
                         ])
                         ->columns(1)
                         ->contained(false)
-                        ->extraAttributes(['class' => 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center'])
+                        ->extraAttributes(['class' => 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center'])
 
                 ]),
             ];
