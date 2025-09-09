@@ -336,8 +336,7 @@ class SampleResource extends Resource
                                                 ->url(fn($record) => $record->download_url)
                                                 ->openUrlInNewTab(),
                                         ])
-                                            ->extraAttributes(['class' => 'mt-3'])
-                                            ->link(),
+                                            ->extraAttributes(['class' => 'mt-3']),
                                     ])
                                     ->extraAttributes([
                                         'class' => 'border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow duration-200 bg-white'
