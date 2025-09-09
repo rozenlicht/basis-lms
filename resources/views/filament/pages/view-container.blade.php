@@ -43,7 +43,7 @@
                                             role="button"
                                             tabindex="0"
                                         >
-                                            Empty
+                                            ({{ $x + 1 }}, {{ $y + 1 }})
                                         </div>
                                     @endif
                                 </div>
