@@ -91,7 +91,6 @@ class SampleResource extends Resource
 
                                 Textarea::make('content')
                                     ->label('Text')
-                                    ->formatStateUsing(fn(array $state): string => nl2br($state['content']) ?? '')
                                     ->rows(3)
 
                             ])
@@ -189,6 +188,7 @@ class SampleResource extends Resource
                                     ->size(Infolists\Components\TextEntry\TextEntrySize::Large),
                                 Infolists\Components\TextEntry::make('content')
                                     ->label('Description')
+                                    ->formatStateUsing(fn (string $state): string => nl2br($state) ?? '')
                                     ->hiddenLabel()
                                     ->markdown()
                                     ->columnSpanFull(),
