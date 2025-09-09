@@ -337,7 +337,6 @@ class SampleResource extends Resource
                                                 ->openUrlInNewTab(),
                                         ])
                                             ->extraAttributes(['class' => 'mt-3'])
-                                            ->button()
                                             ->link(),
                                     ])
                                     ->extraAttributes([
