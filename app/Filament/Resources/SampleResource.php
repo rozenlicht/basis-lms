@@ -71,7 +71,7 @@ class SampleResource extends Resource
                             ->numeric(),
                         Forms\Components\TextInput::make('thickness_mm')
                             ->numeric(),
-                        Forms\Components\TextInput::make('properties'),
+                        Forms\Components\KeyValue::make('properties'),
                     ]),
                 Section::make('Processing')
                     ->collapsed()
@@ -231,7 +231,7 @@ class SampleResource extends Resource
                         Infolists\Components\TextEntry::make('thickness_mm')
                             ->label('Thickness')
                             ->suffix(' mm'),
-                        Infolists\Components\TextEntry::make('properties')
+                        Infolists\Components\KeyValueEntry::make('properties')
                             ->label('Properties')
                             ->columnSpanFull()
                             ->markdown(),
@@ -282,49 +282,73 @@ class SampleResource extends Resource
                         Infolists\Components\RepeatableEntry::make('documents')
                             ->hiddenLabel()
                             ->schema([
-                                Infolists\Components\TextEntry::make('name')
-                                    ->label('Name')
-                                    ->hiddenLabel()
-                                    ->weight('bold')
-                                    ->size(Infolists\Components\TextEntry\TextEntrySize::Large),
+                                Infolists\Components\Section::make()
+                                    ->schema([
+                                        Infolists\Components\ImageEntry::make('preview_url')
+                                            ->label('')
+                                            ->height(120)
+                                            ->width(120)
+                                            ->square()
+                                            ->extraAttributes(['class' => 'rounded-lg shadow-md']),
 
-                                Infolists\Components\TextEntry::make('type')
-                                    ->badge()
-                                    ->color(fn (DocumentType $state): string => match ($state) {
-                                        DocumentType::Drawing => 'info',
-                                        DocumentType::Photo => 'success',
-                                        DocumentType::Micrograph => 'success',
-                                        DocumentType::Specification => 'warning',
-                                        DocumentType::Other => 'gray',
-                                    })
-                                    ->formatStateUsing(fn (DocumentType $state): string => $state->label()),
+                                        Infolists\Components\TextEntry::make('name')
+                                            ->label('')
+                                            ->hiddenLabel()
+                                            ->weight('bold')
+                                            ->size(Infolists\Components\TextEntry\TextEntrySize::Medium)
+                                            ->extraAttributes(['class' => 'mt-2']),
 
-                                Infolists\Components\TextEntry::make('description')
-                                    ->label('Description')
-                                    ->hiddenLabel()
-                                    ->markdown()
-                                    ->columnSpanFull()
-                                    ->visible(fn ($state) => !empty($state)),
+                                        Infolists\Components\TextEntry::make('type')
+                                            ->label('')
+                                            ->hiddenLabel()
+                                            ->badge()
+                                            ->color(fn(DocumentType $state): string => match ($state) {
+                                                DocumentType::Drawing => 'info',
+                                                DocumentType::Photo => 'success',
+                                                DocumentType::Micrograph => 'success',
+                                                DocumentType::Specification => 'warning',
+                                                DocumentType::Other => 'gray',
+                                            })
+                                            ->formatStateUsing(fn(DocumentType $state): string => $state->label())
+                                            ->extraAttributes(['class' => 'mt-1']),
 
-                                Infolists\Components\Actions::make([
-                                    Infolists\Components\Actions\Action::make('download')
-                                        ->label('Download')
-                                        ->icon('heroicon-o-arrow-down-tray')
-                                        ->color('info')
-                                        ->url(fn ($record) => $record->download_url)
-                                        ->openUrlInNewTab(),
+                                        Infolists\Components\TextEntry::make('description')
+                                            ->label('')
+                                            ->hiddenLabel()
+                                            ->markdown()
+                                            ->limit(60)
+                                            ->extraAttributes(['class' => 'mt-2 text-sm text-gray-600'])
+                                            ->visible(fn($state) => !empty($state)),
 
-                                    Infolists\Components\Actions\Action::make('view')
-                                        ->label('View')
-                                        ->icon('heroicon-o-eye')
-                                        ->color('success')
-                                        ->url(fn ($record) => $record->view_url)
-                                        ->openUrlInNewTab(),
-                                ])
-                                ->columnSpanFull(),
+                                        Infolists\Components\Actions::make([
+                                            Infolists\Components\Actions\Action::make('view')
+                                                ->label('View')
+                                                ->icon('heroicon-o-eye')
+                                                ->color('primary')
+                                                ->size('sm')
+                                                ->url(fn($record) => $record->view_url)
+                                                ->openUrlInNewTab(),
+
+                                            Infolists\Components\Actions\Action::make('download')
+                                                ->label('Download')
+                                                ->icon('heroicon-o-arrow-down-tray')
+                                                ->color('gray')
+                                                ->size('sm')
+                                                ->url(fn($record) => $record->download_url)
+                                                ->openUrlInNewTab(),
+                                        ])
+                                            ->extraAttributes(['class' => 'mt-3'])
+                                            ->button()
+                                            ->link(),
+                                    ])
+                                    ->extraAttributes([
+                                        'class' => 'border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow duration-200 bg-white'
+                                    ])
+                                    ->columnSpan(1),
                             ])
-                            ->columns(2)
+                            ->columns(4)
                             ->contained(false)
+                            ->extraAttributes(['class' => 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'])
 
                     ]),
             ]);
@@ -332,8 +356,7 @@ class SampleResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-        ];
+        return [];
     }
 
     public static function getPages(): array
