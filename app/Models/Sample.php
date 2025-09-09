@@ -51,4 +51,9 @@ class Sample extends Model
     {
         return $this->hasMany(ProcessingStep::class);
     }
+
+    public function containerPosition()
+    {
+        return $this->hasOne(ContainerPosition::class);
+    }
 }
