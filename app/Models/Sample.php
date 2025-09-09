@@ -23,6 +23,10 @@ class Sample extends Model
         'properties',
     ];
 
+    protected $casts = [
+        'properties' => 'array',
+    ];
+
     public function sourceMaterial()
     {
         return $this->belongsTo(SourceMaterial::class);
