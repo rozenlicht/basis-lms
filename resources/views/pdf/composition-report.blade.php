@@ -16,7 +16,7 @@
         <p>{{ $sourceMaterial->description }}</p>
     
         <div>
-            @livewire(\App\Filament\Resources\SourceMaterialResource\Widgets\CompositionBarWidget::class, ['record' => $sourceMaterial])
+            @livewire(\App\Filament\Resources\SourceMaterials\Widgets\CompositionBarWidget::class, ['record' => $sourceMaterial])
         </div>
         
         <table>

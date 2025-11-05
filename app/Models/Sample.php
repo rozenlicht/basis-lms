@@ -33,11 +33,6 @@ class Sample extends Model
         return $this->belongsTo(Container::class);
     }
 
-    public function documents()
-    {
-        return $this->morphMany(Document::class, 'documentable');
-    }
-
     public function notes()
     {
         return $this->morphMany(Note::class, 'noteable');

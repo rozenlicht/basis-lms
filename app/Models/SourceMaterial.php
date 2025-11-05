@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SourceMaterial extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'unique_ref',
         'name',
@@ -29,11 +31,6 @@ class SourceMaterial extends Model
     public function samples()
     {
         return $this->hasMany(Sample::class);
-    }
-
-    public function documents()
-    {
-        return $this->morphMany(Document::class, 'documentable');
     }
 
     public function notes()

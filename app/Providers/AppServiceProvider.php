@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,5 +26,8 @@ class AppServiceProvider extends ServiceProvider
         FilamentAsset::register([
             Js::make('chart-js-plugins', Vite::asset('resources/js/filament-chart-js-plugins.js'))->module(),
         ]);
+        Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) {
+            logger([$query->sql, $query->bindings, $query->time]);
+        });
     }
 }

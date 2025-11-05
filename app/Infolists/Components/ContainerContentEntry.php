@@ -14,7 +14,7 @@ class ContainerContentEntry extends Entry
 
     public function EditSample(int $sampleId): void
     {
-        $sample = \App\Models\Sample::find($sampleId);
+        $sample = Sample::find($sampleId);
         if ($sample) {
             // Redirect to the sample edit page or perform any other action
             $this->redirect(SampleResource::getUrl('edit', [

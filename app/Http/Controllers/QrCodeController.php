@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Filament\Resources\ContainerResource;
+use App\Filament\Resources\Containers\ContainerResource;
 use App\Models\Container;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;

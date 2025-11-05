@@ -1,1 +1,1 @@
-@livewire(\App\Filament\Resources\SourceMaterialResource\Widgets\CompositionBarWidget::class, ['record' => $this->record])
+@livewire(\App\Filament\Resources\SourceMaterials\Widgets\CompositionBarWidget::class, ['record' => $this->record])
