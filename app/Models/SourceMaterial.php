@@ -42,6 +42,20 @@ class SourceMaterial extends Model
             $this->attributes['composition'] = $value;
         }
     }
+    
+    // While saving, if the properties seems to be a string containing valid JSON, parse it into an array
+    public function setPropertiesAttribute($value)
+    {
+        if (is_array($value) && count($value) === 1 && is_string($value[0])) {
+            if(json_decode($value[0], true) !== null) {
+                $this->attributes['properties'] = json_decode($value[0], true);
+            } else {
+                $this->attributes['properties'] = $value;
+            }
+        } else {
+            $this->attributes['properties'] = $value;
+        }
+    }
 
     public function samples()
     {
