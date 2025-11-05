@@ -142,23 +142,6 @@ class SourceMaterialResource extends Resource
                             ]),
                         CodeEditor::make('composition')
                             ->language(Language::Json)
-                            ->default('{
-  "C": 0,
-  "Mn": 0,
-  "Si": 0,
-  "Al": 0,
-  "P": 0,
-  "S": 0,
-  "Nb": 0,
-  "Ti": 0,
-  "N": 0,
-  "Cu": 0,
-  "Cr": 0,
-  "Ni": 0,
-  "Mo": 0,
-  "V": 0,
-  "B": 0
-}')
                             ->columnSpanFull(),
                         CodeEditor::make('properties')
                             ->language(Language::Json)
