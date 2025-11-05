@@ -111,7 +111,7 @@ class SourceMaterialResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
-            ->columns(3)
+            ->columns(1)
             ->components([
                 Section::make('Administration')
                     ->schema([
