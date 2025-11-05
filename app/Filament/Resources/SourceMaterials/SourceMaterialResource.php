@@ -128,11 +128,12 @@ class SourceMaterialResource extends Resource
                             ->rows(3)
                     ]),
                 Section::make('Technical')
-                    ->columns(3)
+                    ->columns(2)
                     ->collapsed()
                     ->schema([
-                        TextInput::make('grade')->columnSpan(2),
+                        TextInput::make('grade')->columnSpan(1),
                         Fieldset::make('Dimensions')
+                            ->columnSpan(1)
                             ->columns(3)
                             ->schema([
                                 TextInput::make('width_mm')->numeric()->columnSpan(1),
