@@ -24,8 +24,8 @@ class SourceMaterial extends Model
     ];
 
     protected $casts = [
-        //'composition' => 'array',
-        //'properties' => 'array',
+        'composition' => 'array',
+        'properties' => 'array',
     ];
 
     public function samples()

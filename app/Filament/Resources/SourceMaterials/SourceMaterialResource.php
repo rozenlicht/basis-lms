@@ -141,9 +141,15 @@ class SourceMaterialResource extends Resource
                                 TextInput::make('thickness_mm')->numeric()->columnSpan(1),
                             ]),
                         CodeEditor::make('composition')
+                            ->formatStateUsing(function ($state) {
+                                return json_encode($state, JSON_PRETTY_PRINT);
+                            })
                             ->language(Language::Json)
                             ->columnSpanFull(),
                         CodeEditor::make('properties')
+                            ->formatStateUsing(function ($state) {
+                                return json_encode($state, JSON_PRETTY_PRINT);
+                            })
                             ->language(Language::Json)
                             ->columnSpanFull(),
                     ]),
