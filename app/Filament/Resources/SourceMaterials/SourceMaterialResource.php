@@ -178,6 +178,7 @@ class SourceMaterialResource extends Resource
                 IconColumn::make('is_starred')
                     ->label('')
                     ->visible(fn () => Auth::check())
+                    ->size('sm')
                     ->icon(fn (bool $state) => $state ? 'heroicon-s-star' : 'heroicon-o-star')
                     ->tooltip(fn (SourceMaterial $record) => $record->isStarredBy(Auth::user()) ? 'Remove star' : 'Star this material')
                     ->extraAttributes(['class' => 'cursor-pointer'])
@@ -226,7 +227,7 @@ class SourceMaterialResource extends Resource
                 Group::make('supplier_identifier')
                     ->collapsible()
             ])
-            ->defaultGroup('name')
+            ->defaultGroup('grade')
             ->filters([
                 //
             ])
