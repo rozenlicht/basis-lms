@@ -232,7 +232,12 @@ class SourceMaterialResource extends Resource
             ->persistFiltersInSession()
             ->filters([
                 SelectFilter::make('grade')
-                    ->options(SourceMaterial::all()->pluck('grade', 'grade'))
+                    ->options(fn () => SourceMaterial::query()
+                        ->whereNotNull('grade')
+                        ->distinct()
+                        ->orderBy('grade')
+                        ->pluck('grade', 'grade')
+                        ->toArray())
             ])
             ->recordActions([
                 EditAction::make(),
