@@ -159,6 +159,8 @@ class SourceMaterialResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->paginationPageOptions([25, 50, 100, 250, 500])
+            ->defaultPaginationPageOption(100)
             ->columns([
                 TextColumn::make('unique_ref')
                     ->sortable()
@@ -176,7 +178,7 @@ class SourceMaterialResource extends Resource
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->groups([
                 Group::make('grade')
