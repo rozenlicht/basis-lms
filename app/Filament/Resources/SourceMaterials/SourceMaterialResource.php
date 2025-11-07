@@ -8,7 +8,9 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Fieldset;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Facades\Auth;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\ReplicateAction;
@@ -159,9 +161,45 @@ class SourceMaterialResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = Auth::user();
+
+                $query->withIsStarredFor($user);
+
+                if ($user) {
+                    $query->orderByDesc('is_starred');
+                }
+
+                $query->orderBy('name');
+            })
             ->paginationPageOptions([25, 50, 100, 250, 500])
             ->defaultPaginationPageOption(100)
             ->columns([
+                IconColumn::make('is_starred')
+                    ->label('')
+                    ->visible(fn () => Auth::check())
+                    ->icon(fn (bool $state) => $state ? 'heroicon-s-star' : 'heroicon-o-star')
+                    ->tooltip(fn (SourceMaterial $record) => $record->isStarredBy(Auth::user()) ? 'Remove star' : 'Star this material')
+                    ->extraAttributes(['class' => 'cursor-pointer'])
+                    ->action(function (SourceMaterial $record) {
+                        $user = Auth::user();
+
+                        if (! $user) {
+                            return;
+                        }
+
+                        $alreadyStarred = $user->starredSourceMaterials()
+                            ->where('source_material_id', $record->getKey())
+                            ->exists();
+
+                        if ($alreadyStarred) {
+                            $user->starredSourceMaterials()->detach($record->getKey());
+                        } else {
+                            $user->starredSourceMaterials()->attach($record->getKey());
+                        }
+
+                        $record->setAttribute('is_starred', ! $alreadyStarred);
+                    }),
                 TextColumn::make('unique_ref')
                     ->sortable()
                     ->searchable(),

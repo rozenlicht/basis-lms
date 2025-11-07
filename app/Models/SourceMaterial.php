@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Builder;
 
 class SourceMaterial extends Model
 {
@@ -27,6 +29,13 @@ class SourceMaterial extends Model
         'composition' => 'array',
         'properties' => 'array',
     ];
+
+    protected function isStarred(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => (bool) $value,
+        );
+    }
 
     // While saving, if the composition seems to be a string containing valid JSON, parse it into an array
     public function setCompositionAttribute($value)
@@ -65,5 +74,36 @@ class SourceMaterial extends Model
     public function notes()
     {
         return $this->morphMany(Note::class, 'noteable');
+    }
+
+    public function starredByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'source_material_user')->withTimestamps();
+    }
+
+    public function isStarredBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if (array_key_exists('is_starred', $this->attributes)) {
+            return (bool) $this->attributes['is_starred'];
+        }
+
+        return $this->starredByUsers()
+            ->where('user_id', $user->getKey())
+            ->exists();
+    }
+
+    public function scopeWithIsStarredFor(Builder $query, ?User $user): Builder
+    {
+        if (! $user) {
+            return $query;
+        }
+
+        return $query->withExists([
+            'starredByUsers as is_starred' => fn ($relationQuery) => $relationQuery->where('user_id', $user->getKey()),
+        ]);
     }
 }

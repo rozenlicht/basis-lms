@@ -7,6 +7,7 @@ use Filament\Panel;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -55,4 +56,8 @@ class User extends Authenticatable implements FilamentUser
         return str_ends_with($this->email, '@tue.nl') || str_ends_with($this->email, '@rozenlicht.nl') || str_ends_with($this->email, '@student.tue.nl');
     }
 
+    public function starredSourceMaterials(): BelongsToMany
+    {
+        return $this->belongsToMany(SourceMaterial::class, 'source_material_user')->withTimestamps();
+    }
 }
