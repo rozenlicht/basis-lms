@@ -42,6 +42,7 @@ use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\CodeEditor\Enums\Language;
 use Illuminate\Support\Collection;
 use Filament\Infolists;
+use Filament\Tables\Filters\SelectFilter;
 
 class SourceMaterialResource extends Resource
 {
@@ -228,8 +229,10 @@ class SourceMaterialResource extends Resource
                     ->collapsible()
             ])
             ->defaultGroup('grade')
+            ->persistFiltersInSession()
             ->filters([
-                //
+                SelectFilter::make('grade')
+                    ->options(SourceMaterial::all()->pluck('grade', 'grade'))
             ])
             ->recordActions([
                 EditAction::make(),
