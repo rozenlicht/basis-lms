@@ -206,6 +206,8 @@ class SourceMaterialResource extends Resource
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('name')
+                ->limit(30)
+                ->wrap()
                     ->searchable(),
                 TextColumn::make('grade')
                     ->searchable(),
