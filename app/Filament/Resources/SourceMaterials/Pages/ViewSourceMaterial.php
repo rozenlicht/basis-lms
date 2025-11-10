@@ -10,6 +10,13 @@ class ViewSourceMaterial extends ViewRecord
 {
     protected static string $resource = SourceMaterialResource::class;
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\EditAction::make(),
+        ];
+    }
+
     public function getTitle(): string
     {
         return $this->record->name ?? 'View Source Material';
