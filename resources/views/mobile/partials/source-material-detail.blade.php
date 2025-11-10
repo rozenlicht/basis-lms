@@ -84,22 +84,7 @@
                     <div class="space-y-4">
                         <h3 class="text-sm font-semibold uppercase tracking-wide text-primary-500/80">Composition</h3>
                         @if ($composition->isNotEmpty())
-                            <div class="space-y-3">
-                                @foreach ($composition as $element => $value)
-                                    @php
-                                        $percentage = is_numeric($value) ? max(0, min(100, round($value * 100, 2))) : null;
-                                    @endphp
-                                    <div class="space-y-1">
-                                        <div class="flex items-center justify-between text-sm font-medium text-slate-700">
-                                            <span>{{ $element }}</span>
-                                            <span>{{ $percentage !== null ? $percentage . '%' : $value }}</span>
-                                        </div>
-                                        <div class="h-2 rounded-full bg-slate-200">
-                                            <div class="h-full rounded-full bg-primary-500" style="width: {{ $percentage !== null ? $percentage : 0 }}%"></div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
+                            @include('mobile.components.data-table', ['data' => $composition->toArray()])
                         @else
                             <p class="text-sm text-slate-500">No composition data available.</p>
                         @endif
@@ -107,7 +92,7 @@
                     <div class="space-y-4">
                         <h3 class="text-sm font-semibold uppercase tracking-wide text-primary-500/80">Properties</h3>
                         @if ($properties->isNotEmpty())
-                            <pre class="max-h-64 overflow-auto rounded-2xl bg-slate-900/95 p-4 text-xs text-slate-100">{{ json_encode($properties, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                            @include('mobile.components.data-table', ['data' => $properties->toArray()])
                         @else
                             <p class="text-sm text-slate-500">No properties stored for this material.</p>
                         @endif
