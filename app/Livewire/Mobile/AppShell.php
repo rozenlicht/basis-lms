@@ -152,18 +152,28 @@ class AppShell extends Component
         $this->photoUpload = null;
     }
 
+    protected function searchTerm(): string
+    {
+        return trim($this->search);
+    }
+
     public function getSourceMaterialsProperty()
     {
+        $term = $this->searchTerm();
+
         return SourceMaterial::query()
             ->with(['latestPhoto'])
             ->withCount('samples')
             ->when(
-                $this->search,
-                fn (Builder $query) => $query->where(function (Builder $innerQuery) {
+                $term !== '',
+                fn (Builder $query) => $query->where(function (Builder $innerQuery) use ($term) {
                     $innerQuery
-                        ->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('unique_ref', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%');
+                        ->where('name', 'like', "%{$term}%")
+                        ->orWhere('unique_ref', 'like', "%{$term}%")
+                        ->orWhere('description', 'like', "%{$term}%")
+                        ->orWhere('supplier', 'like', "%{$term}%")
+                        ->orWhere('supplier_identifier', 'like', "%{$term}%")
+                        ->orWhere('grade', 'like', "%{$term}%");
                 })
             )
             ->orderByDesc('updated_at')
@@ -173,14 +183,22 @@ class AppShell extends Component
 
     public function getSamplesProperty()
     {
+        $term = $this->searchTerm();
+
         return Sample::query()
             ->with(['sourceMaterial', 'latestPhoto'])
             ->when(
-                $this->search,
-                fn (Builder $query) => $query->where(function (Builder $innerQuery) {
+                $term !== '',
+                fn (Builder $query) => $query->where(function (Builder $innerQuery) use ($term) {
                     $innerQuery
-                        ->where('unique_ref', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%');
+                        ->where('unique_ref', 'like', "%{$term}%")
+                        ->orWhere('description', 'like', "%{$term}%")
+                        ->orWhereHas('sourceMaterial', function (Builder $relationQuery) use ($term) {
+                            $relationQuery
+                                ->where('name', 'like', "%{$term}%")
+                                ->orWhere('unique_ref', 'like', "%{$term}%")
+                                ->orWhere('description', 'like', "%{$term}%");
+                        });
                 })
             )
             ->orderByDesc('updated_at')

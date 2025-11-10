@@ -12,5 +12,6 @@
     <livewire:mobile.app-shell />
 
     @livewireScripts
+    @vite('resources/js/mobile/qr-scanner.js')
 </body>
 </html>
