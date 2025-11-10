@@ -42,7 +42,9 @@ use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\CodeEditor\Enums\Language;
 use Illuminate\Support\Collection;
 use Filament\Infolists;
+use Filament\Infolists\Components\CodeEntry;
 use Filament\Tables\Filters\SelectFilter;
+use Phiki\Grammar\Grammar;
 
 class SourceMaterialResource extends Resource
 {
@@ -86,7 +88,8 @@ class SourceMaterialResource extends Resource
                                     ->collapsible()
                                     ->collapsed(true)
                                     ->schema([
-                                        KeyValueEntry::make('properties')
+                                        CodeEntry::make('properties')
+                                            ->grammar(Grammar::Json)
                                             ->label('')
                                             ->visible(fn($record) => !empty($record->properties)),
                                     ]),
