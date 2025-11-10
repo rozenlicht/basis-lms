@@ -13,4 +13,15 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    server: {
+        host: "0.0.0.0",
+        port: 5179,
+        strictPort: true,
+        https: false,
+        hmr: {
+            protocol: "wss",
+            host: "basis-system.ddev.site", // Update this with your app name
+            clientPort: 5179,
+        },
+    },
 });

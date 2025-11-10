@@ -18,6 +18,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use App\Filament\Resources\SourceMaterials\RelationManagers\NotesRelationManager;
+use App\Filament\Resources\SourceMaterials\RelationManagers\ProcessingStepsRelationManager;
 use App\Filament\Resources\SourceMaterials\RelationManagers\SamplesRelationManager;
 use App\Filament\Resources\SourceMaterials\Pages\ListSourceMaterials;
 use App\Filament\Resources\SourceMaterials\Pages\CreateSourceMaterial;
@@ -278,6 +279,7 @@ class SourceMaterialResource extends Resource
     public static function getRelations(): array
     {
         return [
+            ProcessingStepsRelationManager::class,
             NotesRelationManager::class,
             SamplesRelationManager::class,
         ];

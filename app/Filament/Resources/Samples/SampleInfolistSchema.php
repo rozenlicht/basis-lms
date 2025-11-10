@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SampleResource\SampleInfolistSchema;
 
+use App\Models\Sample;
 use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Support\Enums\TextSize;
@@ -64,24 +65,10 @@ final class SampleInfolistSchema
                     ]
                 )
                 ->schema([
-                    RepeatableEntry::make('processingSteps')
+                    \Filament\Infolists\Components\ViewEntry::make('processingTimeline')
                         ->hiddenLabel()
-                        ->schema([
-                            TextEntry::make('name')
-                                ->label('Step Name')
-                                ->hiddenLabel()
-                                ->weight('bold')
-                                ->size(TextSize::Medium),
-                            TextEntry::make('content')
-                                ->label('Description')
-                                ->formatStateUsing(fn (string $state): string => nl2br($state) ?? '')
-                                ->hiddenLabel()
-                                ->markdown()
-                                ->columnSpanFull(),
-                        ])
-                        ->columns(1)
-                        ->contained(false)
-                        ->extraAttributes(['class' => 'space-y-3']),
+                        ->state(fn (Sample $record) => $record->processingTimeline())
+                        ->view('filament.infolists.components.processing-timeline'),
                 ]),
 
             Section::make('Container & Location')

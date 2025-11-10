@@ -14,7 +14,13 @@ $routeDefinition = function () {
     })->name('login');
     Route::get('/qr-code/{containerId}', [QrCodeController::class, 'show'])->name('qr-code.show');
     Route::get('/download/attachment/{path}', [DownloadController::class, 'attachment'])->where('path', '.*')->name('download.attachment');
-    
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/mobile', function () {
+            return view('mobile.app');
+        })->name('mobile.app');
+    });
+
     // Redirect all /admin/* requests to /app/*
     Route::get('/admin/{path}', function ($path) {
         return redirect('/app/' . $path, 301);

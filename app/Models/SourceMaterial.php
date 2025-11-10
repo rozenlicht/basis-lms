@@ -2,11 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Note;
+use App\Models\Photo;
+use App\Models\ProcessingStep;
+use App\Models\Sample;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SourceMaterial extends Model
 {
@@ -69,6 +76,22 @@ class SourceMaterial extends Model
     public function samples()
     {
         return $this->hasMany(Sample::class);
+    }
+
+    public function processingSteps(): MorphMany
+    {
+        return $this->morphMany(ProcessingStep::class, 'processable')
+            ->orderBy('created_at');
+    }
+
+    public function photos(): MorphMany
+    {
+        return $this->morphMany(Photo::class, 'imageable')->latest();
+    }
+
+    public function latestPhoto(): MorphOne
+    {
+        return $this->morphOne(Photo::class, 'imageable')->latestOfMany();
     }
 
     public function notes()
