@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Containers;
 
-use App\Filament\Resources\Containers\ContainerResource;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
@@ -33,13 +32,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Infolists;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
 
 class ContainerResource extends Resource
 {
     protected static ?string $model = Container::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-archive-box';
+
+    // Rename navigation label to Storage
+    protected static ?string $navigationLabel = 'Storage';
 
     public static function form(Schema $schema): Schema
     {
@@ -83,14 +84,12 @@ class ContainerResource extends Resource
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make()
-                    ->visible(fn () => Auth::user()?->isAdmin() ?? false),
+                DeleteAction::make(),
             ])
             ->recordUrl(fn (Container $record): string => ContainerResource::getUrl('view', ['record' => $record]))
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->visible(fn () => Auth::user()?->isAdmin() ?? false),
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
