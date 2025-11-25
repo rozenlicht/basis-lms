@@ -24,6 +24,7 @@ use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Repeater;
@@ -119,6 +120,11 @@ class SampleResource extends Resource
             ->filters([
                 //
             ])
+            ->groups([
+                Group::make('sourceMaterial.grade')
+                    ->collapsible(),
+            ])
+            ->defaultGroup('sourceMaterial.grade')
             ->recordUrl(null)
             ->recordAction('view-slideover')
             ->recordActions([
