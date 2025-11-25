@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Container extends Model
 {
+    protected static function booted()
+    {
+        static::created(function ($container) {
+            \App\Models\TimelineEvent::recordCreated($container);
+        });
+    }
+
     protected $fillable = [
         'name',
         'compartments_x_size',

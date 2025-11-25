@@ -18,6 +18,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class SourceMaterial extends Model
 {
     use SoftDeletes;
+
+    protected static function booted()
+    {
+        static::created(function ($sourceMaterial) {
+            \App\Models\TimelineEvent::recordCreated($sourceMaterial);
+        });
+    }
     protected $fillable = [
         'unique_ref',
         'name',

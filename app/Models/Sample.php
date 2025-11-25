@@ -27,6 +27,13 @@ class Sample extends Model
         'properties' => 'array',
     ];
 
+    protected static function booted()
+    {
+        static::created(function ($sample) {
+            \App\Models\TimelineEvent::recordCreated($sample);
+        });
+    }
+
     public function sourceMaterial()
     {
         return $this->belongsTo(SourceMaterial::class);

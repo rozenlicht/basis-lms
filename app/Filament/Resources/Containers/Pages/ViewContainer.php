@@ -15,6 +15,7 @@ use Filament\Actions;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Auth;
 
 class ViewContainer extends Page
 {
@@ -42,12 +43,14 @@ class ViewContainer extends Page
                         ->label('X Position')
                         ->required()
                         ->numeric()
-                        ->minValue(1),
+                        ->minValue(1)
+                        ->default(fn ($arguments) => $arguments['x'] ?? null),
                     TextInput::make('y')
                         ->label('Y Position')
                         ->required()
                         ->numeric()
-                        ->minValue(1),
+                        ->minValue(1)
+                        ->default(fn ($arguments) => $arguments['y'] ?? null),
                     Radio::make('position_type')
                         ->label('Position Type')
                         ->options([
@@ -73,11 +76,25 @@ class ViewContainer extends Page
                         ->placeholder('Enter custom name')
                         ->visible(fn($get) => $get('position_type') === 'custom'),
                 ])
+                ->fillForm(function (array $arguments): array {
+                    return [
+                        'x' => $arguments['x'] ?? null,
+                        'y' => $arguments['y'] ?? null,
+                    ];
+                })
                 ->action(function (array $data): void {
                     if ($data['position_type'] === 'sample' && $data['sample_id']) {
                         $this->record->setPositionSample($data['x'], $data['y'], $data['sample_id']);
+                        \Filament\Notifications\Notification::make()
+                            ->title('Sample added to position')
+                            ->success()
+                            ->send();
                     } elseif ($data['position_type'] === 'custom' && $data['custom_name']) {
                         $this->record->setPositionCustomName($data['x'], $data['y'], $data['custom_name']);
+                        \Filament\Notifications\Notification::make()
+                            ->title('Custom name added to position')
+                            ->success()
+                            ->send();
                     }
                 }),
             Action::make('printQR')
@@ -91,15 +108,17 @@ class ViewContainer extends Page
                     'record' => $this->record->id,
                 ]))),
             DeleteAction::make()
+                ->visible(fn () => Auth::user()?->isAdmin() ?? false)
         ];
     }
 
     public function deletePosition(int $x, int $y)
     {
         $this->record->clearPosition($x, $y);
-        return redirect(ContainerResource::getUrl('view', [
-            'record' => $this->record->id,
-        ]))->with('success', 'Position cleared');
+        \Filament\Notifications\Notification::make()
+            ->title('Position cleared')
+            ->success()
+            ->send();
     }
 
     public function gotoSample(int $sampleId): void
@@ -116,5 +135,10 @@ class ViewContainer extends Page
     public function openAddPositionModal(int $x, int $y): void
     {
         $this->mountAction('addPosition', ['x' => $x, 'y' => $y]);
+    }
+
+    public function confirmDeletePosition(int $x, int $y): void
+    {
+        $this->deletePosition($x, $y);
     }
 }

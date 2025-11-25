@@ -29,6 +29,9 @@ class Asset extends Model
     protected static function booted()
     {
         static::created(function ($asset) {
+            // Record timeline event
+            \App\Models\TimelineEvent::recordCreated($asset);
+            
             // Process main path file for thumbnail generation
             if ($asset->path) {
                 PostProcessAssetAttachmentJob::dispatch($asset, $asset->path, true);

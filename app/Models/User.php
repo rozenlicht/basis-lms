@@ -25,6 +25,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -59,5 +60,21 @@ class User extends Authenticatable implements FilamentUser
     public function starredSourceMaterials(): BelongsToMany
     {
         return $this->belongsToMany(SourceMaterial::class, 'source_material_user')->withTimestamps();
+    }
+
+    /**
+     * Check if the user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if the user is a regular user.
+     */
+    public function isRegularUser(): bool
+    {
+        return $this->role === 'user';
     }
 }

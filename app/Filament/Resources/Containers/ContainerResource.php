@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Infolists;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class ContainerResource extends Resource
 {
@@ -82,12 +83,14 @@ class ContainerResource extends Resource
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()?->isAdmin() ?? false),
             ])
             ->recordUrl(fn (Container $record): string => ContainerResource::getUrl('view', ['record' => $record]))
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn () => Auth::user()?->isAdmin() ?? false),
                 ]),
             ]);
     }
