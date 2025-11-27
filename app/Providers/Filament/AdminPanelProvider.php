@@ -38,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('images/logo.png'))
             ->brandLogoHeight('40px')
             ->maxContentWidth(Width::Full)
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'primary' => '#04688f',
             ])

@@ -17,6 +17,16 @@ export default {
                 800: '#075985',
                 900: '#0c4a6e',
             }
-        }
+        },
+        safelist: [
+            // Width utilities used in timeline widget
+            'w-0.5',
+            'w-3',
+            'w-3.5',
+            'w-5',
+            'w-6',
+            'w-12',
+            'w-16',
+        ]
     }
 }
