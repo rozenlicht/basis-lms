@@ -5,8 +5,10 @@ namespace App\Filament\Resources\Samples;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\KeyValue;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Actions\ViewAction;
+use Illuminate\Support\Facades\Auth;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
@@ -107,7 +109,44 @@ class SampleResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = Auth::user();
+
+                $query->withIsStarredFor($user);
+
+                if ($user) {
+                    $query->orderByDesc('is_starred');
+                }
+
+                $query->orderBy('unique_ref');
+            })
             ->columns([
+                IconColumn::make('is_starred')
+                    ->label('')
+                    ->visible(fn () => Auth::check())
+                    ->size('sm')
+                    ->icon(fn (bool $state) => $state ? 'heroicon-s-star' : 'heroicon-o-star')
+                    ->tooltip(fn (Sample $record) => $record->isStarredBy(Auth::user()) ? 'Remove star' : 'Star this sample')
+                    ->extraAttributes(['class' => 'cursor-pointer'])
+                    ->action(function (Sample $record) {
+                        $user = Auth::user();
+
+                        if (! $user) {
+                            return;
+                        }
+
+                        $alreadyStarred = $user->starredSamples()
+                            ->where('sample_id', $record->getKey())
+                            ->exists();
+
+                        if ($alreadyStarred) {
+                            $user->starredSamples()->detach($record->getKey());
+                        } else {
+                            $user->starredSamples()->attach($record->getKey());
+                        }
+
+                        $record->setAttribute('is_starred', ! $alreadyStarred);
+                    }),
                 TextColumn::make('unique_ref')
                     ->formatStateUsing(fn(Sample $record) => $record->sourceMaterial->unique_ref . '-' . $record->unique_ref)
                     ->searchable(),

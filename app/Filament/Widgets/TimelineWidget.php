@@ -10,8 +10,6 @@ class TimelineWidget extends Widget
 {
     protected string $view = 'filament.widgets.timeline-widget';
 
-    protected int | string | array $columnSpan = 'full';
-
     protected static ?int $sort = 1;
 
     public function getViewData(): array

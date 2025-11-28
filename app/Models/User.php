@@ -62,6 +62,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsToMany(SourceMaterial::class, 'source_material_user')->withTimestamps();
     }
 
+    public function starredSamples(): BelongsToMany
+    {
+        return $this->belongsToMany(Sample::class, 'sample_user')->withTimestamps();
+    }
+
     /**
      * Check if the user is an admin.
      */

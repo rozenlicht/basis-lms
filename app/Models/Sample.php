@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Models\ProcessingStep;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Collection;
@@ -118,5 +121,36 @@ class Sample extends Model
     public function containerPosition()
     {
         return $this->hasOne(ContainerPosition::class);
+    }
+
+    public function starredByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'sample_user')->withTimestamps();
+    }
+
+    public function isStarredBy(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        if (array_key_exists('is_starred', $this->attributes)) {
+            return (bool) $this->attributes['is_starred'];
+        }
+
+        return $this->starredByUsers()
+            ->where('user_id', $user->getKey())
+            ->exists();
+    }
+
+    public function scopeWithIsStarredFor(Builder $query, ?User $user): Builder
+    {
+        if (! $user) {
+            return $query;
+        }
+
+        return $query->withExists([
+            'starredByUsers as is_starred' => fn ($relationQuery) => $relationQuery->where('user_id', $user->getKey()),
+        ]);
     }
 }
